@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  sqlite3:
+    image: nouchka/sqlite3:latest
+    container_name: sqlite
+    restart: always
+    platform: linux/amd64
+    stdin_open: true
+    tty: true
+    ports:
+      - 9000:9000

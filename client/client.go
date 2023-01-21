@@ -2,13 +2,15 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3000*time.Millisecond)
 
 	defer cancel()
 
@@ -29,5 +31,12 @@ func main() {
 		panic(err)
 	}
 
-	println(string(body))
+	file, err := os.Create("cotacao.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(fmt.Sprintf("Dolar: %v", string(body)))
+
 }
