@@ -13,6 +13,7 @@ import (
 )
 
 type USDBRL struct {
+	ID         int    `json:"id"`
 	Code       string `json:"code"`
 	Codein     string `json:"codein"`
 	Name       string `json:"name"`
@@ -32,7 +33,10 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3000*time.Millisecond)
+	ctxInsertDb, cancel := context.WithTimeout(context.Background(), 10000*time.Millisecond)
+	defer cancel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2000*time.Millisecond)
 	defer cancel()
 
 	db, err := sql.Open("sqlite3", "file:table.db?cache=shared&mode=memory")
@@ -67,22 +71,22 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	log.Println(dolar.Code)
+	log.Println(dolar)
 
 	const create string = `
 	CREATE TABLE IF NOT EXISTS dolar (
 		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		code TEXT,
-		codein TEXT,
-		name TEXT,
-		high TEXT,
-		low TEXT,
-		varbid TEXT,
-		pctchange TEXT,
-		bid TEXT,
-		ask TEXT,
-		timestamp TEXT,
-		createdate TEXT
+		code VARCHAR(80),
+		codein VARCHAR(80),
+		name VARCHAR(80),
+		high VARCHAR(80),
+		low VARCHAR(80),
+		varbid VARCHAR(80),
+		pctchange VARCHAR(80),
+		bid VARCHAR(80),
+		ask VARCHAR(80),
+		timestamp VARCHAR(80),
+		createdate VARCHAR(80)
 	);
 	`
 	_, err = db.Exec(create)
@@ -90,7 +94,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	err = insertCotacao(db, dolar)
+	err = insertCotacao(ctxInsertDb, db, dolar)
 	if err != nil {
 		panic(err)
 	}
@@ -98,13 +102,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(string(dolar.Bid)))
 }
 
-func insertCotacao(db *sql.DB, cotacao USDBRL) error {
+func insertCotacao(ctx context.Context, db *sql.DB, cotacao USDBRL) error {
 	stmt, err := db.Prepare("insert into dolar(code, codein, name, high, low, varbid, pctchange, bid, ask, timestamp, createdate) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	_, err = db.Exec(cotacao.Code, cotacao.Codein, cotacao.Name, cotacao.High, cotacao.Low, cotacao.VarBid, cotacao.PctChange, cotacao.Bid, cotacao.Ask, cotacao.Timestamp, cotacao.CreateDate)
+	_, err = stmt.ExecContext(ctx, cotacao.Code, cotacao.Codein, cotacao.Name, cotacao.High, cotacao.Low, cotacao.VarBid, cotacao.PctChange, cotacao.Bid, cotacao.Ask, cotacao.Timestamp, cotacao.CreateDate)
 	if err != nil {
 		return err
 	}
