@@ -4,8 +4,8 @@ In this project we learn how to work with webserver http, contexts in calls, sql
 
 Run command server:
 
-    go run server.go
+    go run server/server.go
 
 After run command client:
 
-    go run client.go
+    go run client/client.go
