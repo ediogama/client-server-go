@@ -1,6 +1,6 @@
 # client-server-go
 
-In this project we learn how to work with webserver http, contexts in calls, database and file handling.
+In this project we learn how to work with webserver http, contexts in calls, sqlite3 database and file handling.
 
 Run command server:
 
