@@ -3,14 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"time"
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 3000*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	defer cancel()
 
@@ -26,7 +26,7 @@ func main() {
 
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		panic(err)
 	}
@@ -38,5 +38,8 @@ func main() {
 	defer file.Close()
 
 	_, err = file.WriteString(fmt.Sprintf("Dolar: %v", string(body)))
+	if err != nil {
+		panic((err))
+	}
 
 }

@@ -33,19 +33,19 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	ctxInsertDb, cancel := context.WithTimeout(context.Background(), 10000*time.Millisecond)
+	ctxInsertDb, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2000*time.Millisecond)
+	ctxRequest, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 	defer cancel()
 
-	db, err := sql.Open("sqlite3", "file:table.db?cache=shared&mode=memory")
+	db, err := sql.Open("sqlite3", "file:table.db")
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
+	req, err := http.NewRequestWithContext(ctxRequest, "GET", "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
 	if err != nil {
 		panic(err)
 	}
